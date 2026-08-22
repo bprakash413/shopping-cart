@@ -2,10 +2,11 @@ package com.shoppingcart;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +15,10 @@ class ShoppingCartTest {
 
     @BeforeEach
     void setUp() {
-        Map<String, BigDecimal> priceMap = new HashMap<>();
-        priceMap.put("cornflakes", new BigDecimal("2.52"));
-        priceMap.put("weetabix", new BigDecimal("9.98"));
-        priceMap.put("item", new BigDecimal("0.01"));
-
-        priceClient = new MockPriceClient(priceMap);
+        priceClient = mock(PriceClient.class);
+        when(priceClient.getPriceByProductName(eq("cornflakes"))).thenReturn(new BigDecimal("2.52"));
+        when(priceClient.getPriceByProductName(eq("weetabix"))).thenReturn(new BigDecimal("9.98"));
+        when(priceClient.getPriceByProductName(eq("item"))).thenReturn(new BigDecimal("0.01"));
     }
 
     @Test
@@ -73,19 +72,6 @@ class ShoppingCartTest {
             cart.addProduct(" ", 1);
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    private static final class MockPriceClient implements PriceClient {
-        private final Map<String, BigDecimal> priceTable;
-
-        MockPriceClient(Map<String, BigDecimal> priceTable) {
-            this.priceTable = priceTable;
-        }
-
-        @Override
-        public BigDecimal getPriceByProductName(String productName) {
-            return priceTable.get(productName);
         }
     }
 }

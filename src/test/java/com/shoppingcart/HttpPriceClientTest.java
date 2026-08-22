@@ -1,61 +1,41 @@
 package com.shoppingcart;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.junit.jupiter.api.Test;
 
 class HttpPriceClientTest {
+    private final HttpClient httpClient = mock(HttpClient.class);
+    private final HttpPriceClient client = new HttpPriceClient(httpClient, URI.create("http://localhost/"));
+
     @Test
     void returnsThePriceFromThePriceApi() throws Exception {
-        HttpServer server = serverWithResponse(200, "{\"title\":\"Corn Flakes\",\"price\":2.52}");
-        try {
-            PriceClient client = clientFor(server);
-            assertEquals(new BigDecimal("2.52"), client.getPriceByProductName("cornflakes"));
-        } finally {
-            server.stop(0);
-        }
+        stubResponse(200, "{\"title\":\"Corn Flakes\",\"price\":2.52}");
+
+        assertEquals(new BigDecimal("2.52"), client.getPriceByProductName("cornflakes"));
     }
 
     @Test
     void rejectsAnUnknownProduct() throws Exception {
-        HttpServer server = serverWithResponse(404, "");
-        try {
-            try {
-                clientFor(server).getPriceByProductName("not-a-product");
-                fail("Expected IllegalArgumentException");
-            } catch (IllegalArgumentException expected) {
-            }
-        } finally {
-            server.stop(0);
-        }
+        stubResponse(404, "");
+
+        assertThrows(IllegalArgumentException.class, () -> client.getPriceByProductName("not-a-product"));
     }
 
-    private HttpPriceClient clientFor(HttpServer server) {
-        int port = server.getAddress().getPort();
-        return new HttpPriceClient(HttpClient.newHttpClient(), URI.create("http://localhost:" + port + "/"));
-    }
-
-    private HttpServer serverWithResponse(int status, String body) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-        server.createContext("/", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                byte[] response = body.getBytes();
-                exchange.sendResponseHeaders(status, response.length);
-                exchange.getResponseBody().write(response);
-                exchange.close();
-            }
-        });
-        server.start();
-        return server;
+    @SuppressWarnings("unchecked")
+    private void stubResponse(int status, String body) throws Exception {
+        HttpResponse<String> response = mock(HttpResponse.class);
+        when(response.statusCode()).thenReturn(status);
+        when(response.body()).thenReturn(body);
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(response);
     }
 }
