@@ -5,12 +5,17 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A cart of products, keyed by product name. Prices are fetched once per product via the
+ * supplied {@link PriceClient} and cached on the {@link CartItem} for the lifetime of the cart.
+ */
 public final class ShoppingCart {
     private static final BigDecimal TAX_RATE = new BigDecimal("0.125");
 
     private final PriceClient priceClient;
     private final Map<String, CartItem> cartItems = new HashMap<>();
 
+    /** Creates an empty cart that looks up prices via the given client. */
     public ShoppingCart(PriceClient priceClient) {
         if (priceClient == null) {
             throw new IllegalArgumentException("priceClient must not be null");
@@ -39,6 +44,7 @@ public final class ShoppingCart {
         cartItems.put(productName, new CartItem(productName, quantity, unitPrice));
     }
 
+    /** Sum of every line's total price, rounded up to 2 decimal places. */
     public BigDecimal subtotal() {
         BigDecimal sum = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems.values()) {
@@ -47,14 +53,17 @@ public final class ShoppingCart {
         return roundUp(sum);
     }
 
+    /** Tax at {@link #TAX_RATE} on the subtotal, rounded up to 2 decimal places. */
     public BigDecimal tax() {
         return roundUp(subtotal().multiply(TAX_RATE));
     }
 
+    /** Subtotal plus tax, rounded up to 2 decimal places. */
     public BigDecimal total() {
         return roundUp(subtotal().add(tax()));
     }
 
+    /** Rounds up to 2 decimal places. */
     private BigDecimal roundUp(BigDecimal amount) {
         return amount.setScale(2, RoundingMode.UP);
     }

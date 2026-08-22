@@ -3,11 +3,21 @@ package com.shoppingcart;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+/**
+ * A single line in a {@link ShoppingCart}: a product, how many of it, and the price per unit.
+ * Immutable - quantity changes go through {@link #withAdditionalQuantity(int)}.
+ */
 public final class CartItem {
     private final String productName;
     private final int quantity;
     private final BigDecimal unitPrice;
 
+    /**
+     * Creates a cart item.
+     *
+     * @throws IllegalArgumentException if productName is blank, quantity is less than one,
+     *                                   or unitPrice is null/negative
+     */
     public CartItem(String productName, int quantity, BigDecimal unitPrice) {
         if (productName == null || productName.isBlank()) {
             throw new IllegalArgumentException("Product name is required");
@@ -23,26 +33,32 @@ public final class CartItem {
         this.unitPrice = unitPrice;
     }
 
+    /** Returns the product name. */
     public String getProductName() {
         return productName;
     }
 
+    /** Returns the quantity. */
     public int getQuantity() {
         return quantity;
     }
 
+    /** Returns the unit price. */
     public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
+    /** Quantity times unit price, unrounded. */
     public BigDecimal getCartItemTotalPrice() {
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
+    /** Returns a new item with the extra quantity added on top of the current one. */
     public CartItem withAdditionalQuantity(int additionalQuantity) {
         return new CartItem(productName, quantity + additionalQuantity, unitPrice);
     }
 
+    /** Two cart items are equal when product name, quantity, and unit price all match. */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,11 +69,13 @@ public final class CartItem {
                 && unitPrice.equals(cartItem.unitPrice);
     }
 
+    /** Consistent with {@link #equals(Object)}. */
     @Override
     public int hashCode() {
         return Objects.hash(productName, quantity, unitPrice);
     }
 
+    /** Returns a readable "2 x Apple @ 0.50" style summary of this line. */
     @Override
     public String toString() {
         return quantity + " x " + productName + " @ " + unitPrice;
