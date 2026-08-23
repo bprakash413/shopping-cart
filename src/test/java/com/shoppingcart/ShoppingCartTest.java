@@ -16,9 +16,9 @@ class ShoppingCartTest {
     @BeforeEach
     void setUp() {
         priceClient = mock(PriceClient.class);
-        when(priceClient.getPriceByProductName(eq("cornflakes"))).thenReturn(new BigDecimal("2.52"));
-        when(priceClient.getPriceByProductName(eq("weetabix"))).thenReturn(new BigDecimal("9.98"));
-        when(priceClient.getPriceByProductName(eq("item"))).thenReturn(new BigDecimal("0.01"));
+        when(priceClient.getPriceByProductName("cornflakes")).thenReturn(new BigDecimal("2.52"));
+        when(priceClient.getPriceByProductName("weetabix")).thenReturn(new BigDecimal("9.98"));
+        when(priceClient.getPriceByProductName("item")).thenReturn(new BigDecimal("0.01"));
     }
 
     @Test

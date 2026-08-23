@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
- * A single line in a {@link ShoppingCart}: a product, how many of it, and the price per unit.
- * Immutable - quantity changes go through {@link #withAdditionalQuantity(int)}.
+ * This class contains {@link ShoppingCart} Single Line Item which contains product, quantity and price per unit.<br/>
+ * Immutable - quantity changes will go through {@link #withAdditionalQuantity(int)}
  */
 public final class CartItem {
     private final String productName;
@@ -66,7 +66,7 @@ public final class CartItem {
         CartItem cartItem = (CartItem) o;
         return quantity == cartItem.quantity
                 && productName.equals(cartItem.productName)
-                && unitPrice.equals(cartItem.unitPrice);
+                && unitPrice.compareTo(cartItem.unitPrice) == 0;
     }
 
     /** Consistent with {@link #equals(Object)}. */
@@ -75,7 +75,7 @@ public final class CartItem {
         return Objects.hash(productName, quantity, unitPrice);
     }
 
-    /** Returns a readable "2 x Apple @ 0.50" style summary of this line. */
+    /** Returns a readable "2 x Apple @ 2.52" style summary of this line. */
     @Override
     public String toString() {
         return quantity + " x " + productName + " @ " + unitPrice;

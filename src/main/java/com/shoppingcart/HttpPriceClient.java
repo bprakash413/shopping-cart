@@ -60,7 +60,7 @@ public final class HttpPriceClient implements PriceClient {
         }
     }
 
-    /** Product name -> "{@literal <base>/<url-encoded-name>.json}". */
+    /** Product name -> "<base>/<url-encoded-name>.json". */
     private URI productUri(String productName) {
         String encodedName = URLEncoder.encode(productName, StandardCharsets.UTF_8).replace("+", "%20");
         return baseUri.resolve(encodedName + ".json");

@@ -13,6 +13,8 @@ public final class ShoppingCart {
     private static final BigDecimal TAX_RATE = new BigDecimal("0.125");
 
     private final PriceClient priceClient;
+
+    /** Create a Map of productName and CartItem */
     private final Map<String, CartItem> cartItems = new HashMap<>();
 
     /** Creates an empty cart that looks up prices via the given client. */
