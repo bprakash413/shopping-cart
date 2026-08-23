@@ -46,7 +46,7 @@ Covered by `ShoppingCartTest`.
 ## Build & test
 
 ```bash
-mvn test
+./gradlew test
 ```
 
 - `ShoppingCartTest` — cart, validation, pricing calculations
@@ -56,7 +56,7 @@ mvn test
 ## Requirements
 
 - Java 25
-- Maven
+- Gradle (via the included wrapper — no local install needed)
 - JUnit 5.10.2 (test scope only)
 - Mockito 5.19.0 (test scope only)
 
@@ -70,6 +70,6 @@ mvn test
 
 ## AI tool usage
 
-- **What AI was used for:** writing JavaDoc comments, writing this README, and writing the `HttpPriceClientTest` test cases.
+- **What AI was used for:** writing JavaDoc comments, writing this README, and writing the `HttpPriceClientTest` test cases. Converted Maven project to Gradle project.
 - **How much code AI wrote:** approximately 15% of the code in this project, based on JavaDoc comments and the `HttpPriceClientTest` test class.
 - **How it was checked:** by running the unit tests and making sure they pass.
