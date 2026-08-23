@@ -50,6 +50,7 @@ mvn test
 ```
 
 - `ShoppingCartTest` — cart mutation, validation, pricing calculations
+- `CartItemTest` — line item total, validation of product name/quantity/unit price
 - `HttpPriceClientTest` — HTTP client, tested against a real in-process `HttpServer` (JDK `com.sun.net.httpserver`) instead of a live network call or a hand-written test double
 
 ## Requirements
