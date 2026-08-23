@@ -28,8 +28,8 @@ The `price` field is extracted from the JSON response with a regular expression,
 
 ## Pricing formulas
 
-- `lineTotal = unitPrice * quantity`
-- `subtotal = roundUp(sum(lineTotal))`
+- `cartItemTotal = unitPrice * quantity`
+- `subtotal = roundUp(sum(cartItemTotal))`
 - `tax = roundUp(subtotal * 0.125)`
 - `total = roundUp(subtotal + tax)`
 
@@ -49,26 +49,27 @@ Covered by `ShoppingCartTest`.
 mvn test
 ```
 
-- `ShoppingCartTest` — cart mutation, validation, pricing calculations
-- `CartItemTest` — line item total, validation of product name/quantity/unit price
-- `HttpPriceClientTest` — HTTP client, tested against a real in-process `HttpServer` (JDK `com.sun.net.httpserver`) instead of a live network call or a hand-written test double
+- `ShoppingCartTest` — cart, validation, pricing calculations
+- `CartItemTest` — cart item total, validation of product name/quantity/unit price
+- `HttpPriceClientTest` — HTTP client
 
 ## Requirements
 
-- Java 17
+- Java 25
 - Maven
 - JUnit 5.10.2 (test scope only)
+- Mockito 5.19.0 (test scope only)
 
 ## Assumptions & tradeoffs
 
-- Product names are matched by exact string equality; no case-insensitive normalization or whitespace trimming beyond rejecting blank names.
-- Price is looked up on every `addProduct` call, not just the first time a product is added. Adding the same product again at a different price creates a separate line item.
-- Cart items are stored in a `List` and matched via a linear scan, not a map.
-- No persistence: the cart only holds state in memory for the lifetime of the object.
-- A single 12.5% tax rate applies to every line; no discount support.
-- Rounding always rounds up (`RoundingMode.CEILING`) rather than the JDK's default half-up.
-- Price lookup failures (unknown product, missing `price` field, network/IO errors) are reported as generic unchecked exceptions (`IllegalArgumentException`, `IllegalStateException`) rather than dedicated exception types.
+- Product names must match exactly. Different case or extra spaces are treated as a different product — for example, `"cornflakes"` and `"Cornflakes "` are two separate lines in the cart, even though both successfully look up a price.
+- Nothing is saved anywhere. The cart only exists in memory while the program is running.
+- Every item is taxed at a flat 12.5%.
+- Totals are always rounded up, never rounded to the nearest value.
+- If a price can't be looked up (product not found, price missing, or a network problem), the code throws a generic error instead of a specific one for each case.
 
 ## AI tool usage
 
-- **Use cases**: the HTTP client (`HttpPriceClient`), tax/total calculation logic.
+- **What AI was used for:** writing JavaDoc comments, writing this README, and writing the `HttpPriceClientTest` test cases.
+- **How much code AI wrote:** approximately 15% of the code in this project, based on JavaDoc comments and the `HttpPriceClientTest` test class.
+- **How it was checked:** by running the unit tests and making sure they pass.
