@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
+/** Tests for {@link CartItem} construction and validation. */
 class CartItemTest {
+    /** Basic unit price x quantity math. */
     @Test
     void calculatesTotalPriceAsUnitPriceTimesQuantity() {
         CartItem item = new CartItem("cornflakes", 3, new BigDecimal("2.52"));
@@ -14,6 +16,7 @@ class CartItemTest {
         assertEquals(new BigDecimal("7.56"), item.getCartItemTotalPrice());
     }
 
+    /** Free items are a valid line item, not an error. */
     @Test
     void allowsAZeroUnitPrice() {
         CartItem item = new CartItem("item", 1, BigDecimal.ZERO);
@@ -21,6 +24,7 @@ class CartItemTest {
         assertEquals(BigDecimal.ZERO, item.getCartItemTotalPrice());
     }
 
+    /** A product name is required. */
     @Test
     void rejectsANullProductName() {
         try {
@@ -30,6 +34,7 @@ class CartItemTest {
         }
     }
 
+    /** Whitespace-only counts as blank. */
     @Test
     void rejectsABlankProductName() {
         try {
@@ -39,6 +44,7 @@ class CartItemTest {
         }
     }
 
+    /** Quantity must be at least one. */
     @Test
     void rejectsAZeroQuantity() {
         try {
@@ -48,6 +54,7 @@ class CartItemTest {
         }
     }
 
+    /** Same as a zero quantity - still not a valid line item. */
     @Test
     void rejectsANegativeQuantity() {
         try {
@@ -57,6 +64,7 @@ class CartItemTest {
         }
     }
 
+    /** A unit price is required to compute the line total. */
     @Test
     void rejectsANullUnitPrice() {
         try {
@@ -66,6 +74,7 @@ class CartItemTest {
         }
     }
 
+    /** Unlike quantity, a zero unit price is fine - only negative is rejected. */
     @Test
     void rejectsANegativeUnitPrice() {
         try {

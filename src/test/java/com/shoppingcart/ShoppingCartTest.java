@@ -10,9 +10,11 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests for {@link ShoppingCart} covering total calculations and input validation. */
 class ShoppingCartTest {
     private PriceClient priceClient;
 
+    /** Stubs a fake {@link PriceClient} with the prices used across these tests. */
     @BeforeEach
     void setUp() {
         priceClient = mock(PriceClient.class);
@@ -21,6 +23,7 @@ class ShoppingCartTest {
         when(priceClient.getPriceByProductName("item")).thenReturn(new BigDecimal("0.01"));
     }
 
+    /** Mirrors the worked example in the README: 2 x cornflakes + 1 x weetabix. */
     @Test
     void calculatesTheExampleCartTotals() {
         ShoppingCart cart = new ShoppingCart(priceClient);
@@ -34,6 +37,7 @@ class ShoppingCartTest {
         assertEquals(new BigDecimal("16.90"), cart.total());
     }
 
+    /** An empty cart should report zero everywhere rather than throwing. */
     @Test
     void hasZeroTotalsWhenEmpty() {
         ShoppingCart cart = new ShoppingCart(priceClient);
@@ -43,6 +47,7 @@ class ShoppingCartTest {
         assertEquals(new BigDecimal("0.00"), cart.total());
     }
 
+    /** A 0.01 unit price forces rounding up at every stage, not just the subtotal. */
     @Test
     void roundsMonetaryAmountsToTwoDecimalPlaces() {
         ShoppingCart cart = new ShoppingCart(priceClient);
@@ -53,6 +58,7 @@ class ShoppingCartTest {
         assertEquals(new BigDecimal("0.02"), cart.total());
     }
 
+    /** Zero (or negative) quantity is not a valid line item. */
     @Test
     void rejectsAnInvalidQuantity() {
         ShoppingCart cart = new ShoppingCart(priceClient);
@@ -64,6 +70,7 @@ class ShoppingCartTest {
         }
     }
 
+    /** Whitespace-only names should be treated the same as a blank name. */
     @Test
     void rejectsABlankProductName() {
         ShoppingCart cart = new ShoppingCart(priceClient);
