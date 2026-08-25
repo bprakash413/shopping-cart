@@ -54,18 +54,33 @@ class HttpPriceClientTest {
     /** If the connection can't be established at all, that also results in an IllegalStateException. */
     @Test
     void throwsAnIllegalStateExceptionWhenTheConnectionFails() throws Exception {
-        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+        when(httpClient.send(any(HttpRequest.class), anyBodyHandler()))
                 .thenThrow(new ConnectException("Connection refused"));
 
         assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
     }
 
+    /** A blocking send() that's interrupted mid-request also surfaces as an IllegalStateException. */
+    @Test
+    void throwsAnIllegalStateExceptionWhenInterrupted() throws Exception {
+        when(httpClient.send(any(HttpRequest.class), anyBodyHandler()))
+                .thenThrow(new InterruptedException("simulated interruption"));
+
+        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+    }
+
     /** Stubs the mocked {@link HttpClient} to return the given status/body pair for any request. */
-    @SuppressWarnings("unchecked")
     private void stubResponse(int status, String body) throws Exception {
+        @SuppressWarnings("unchecked")
         HttpResponse<String> response = mock(HttpResponse.class);
         when(response.statusCode()).thenReturn(status);
         when(response.body()).thenReturn(body);
-        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(response);
+        when(httpClient.send(any(HttpRequest.class), anyBodyHandler())).thenReturn(response);
+    }
+
+    /** {@code any(HttpResponse.BodyHandler.class)}, narrowed to a single suppressed cast instead of one per call site. */
+    @SuppressWarnings("unchecked")
+    private static HttpResponse.BodyHandler<String> anyBodyHandler() {
+        return any(HttpResponse.BodyHandler.class);
     }
 }

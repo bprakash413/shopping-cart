@@ -56,7 +56,7 @@ Covered by `ShoppingCartTest`.
 ## Requirements
 
 - Java 25
-- Gradle (via the included wrapper — no local install needed)
+- Gradle
 - JUnit 5.10.2 (test scope only)
 - Mockito 5.19.0 (test scope only)
 
