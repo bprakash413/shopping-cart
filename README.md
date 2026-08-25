@@ -70,6 +70,6 @@ Covered by `ShoppingCartTest`.
 
 ## AI tool usage
 
-- **What AI was used for:** writing JavaDoc comments, writing this README, and writing the `HttpPriceClientTest` test cases. Converted Maven project to Gradle project.
+- **What AI was used for:** writing JavaDoc comments, writing this README, and writing the `HttpPriceClientTest` test cases.
 - **How much code AI wrote:** approximately 15% of the code in this project, based on JavaDoc comments and the `HttpPriceClientTest` test class.
 - **How it was checked:** by running the unit tests and making sure they pass.

@@ -1,7 +1,7 @@
 package com.shoppingcart;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -23,7 +23,7 @@ class ShoppingCartTest {
         when(priceClient.getPriceByProductName("item")).thenReturn(new BigDecimal("0.01"));
     }
 
-    /** Mirrors the worked example in the README: 2 x cornflakes + 1 x weetabix. */
+    /** Matches the worked example in the README: 2 x cornflakes + 1 x weetabix. */
     @Test
     void calculatesTheExampleCartTotals() {
         ShoppingCart cart = new ShoppingCart(priceClient);
@@ -49,7 +49,7 @@ class ShoppingCartTest {
 
     /** A 0.01 unit price forces rounding up at every stage, not just the subtotal. */
     @Test
-    void roundsMonetaryAmountsToTwoDecimalPlaces() {
+    void roundsAmountsToTwoDecimalPlaces() {
         ShoppingCart cart = new ShoppingCart(priceClient);
         cart.addProduct("item", 1);
 
@@ -63,11 +63,7 @@ class ShoppingCartTest {
     void rejectsAnInvalidQuantity() {
         ShoppingCart cart = new ShoppingCart(priceClient);
 
-        try {
-            cart.addProduct("cornflakes", 0);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> cart.addProduct("cornflakes", 0));
     }
 
     /** Whitespace-only names should be treated the same as a blank name. */
@@ -75,10 +71,6 @@ class ShoppingCartTest {
     void rejectsABlankProductName() {
         ShoppingCart cart = new ShoppingCart(priceClient);
 
-        try {
-            cart.addProduct(" ", 1);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> cart.addProduct(" ", 1));
     }
 }

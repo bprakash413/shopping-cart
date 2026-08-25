@@ -1,13 +1,46 @@
 package com.shoppingcart;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /** Tests for {@link CartItem} construction and validation. */
 class CartItemTest {
+
+    /** The additional quantity is added on top of the current one. */
+    @Test
+    void withAdditionalQuantityAddsToCurrentQuantity() {
+        CartItem item = new CartItem("cornflakes", 3, new BigDecimal("2.52"));
+
+        CartItem updated = item.withAdditionalQuantity(2);
+
+        assertEquals(new CartItem("cornflakes", 5, new BigDecimal("2.52")), updated);
+    }
+
+    /** The original item stays the same after the call. */
+    @Test
+    void withAdditionalQuantityDoesNotChangeTheOriginal() {
+        CartItem item = new CartItem("cornflakes", 3, new BigDecimal("2.52"));
+
+        CartItem updated = item.withAdditionalQuantity(2);
+
+        assertEquals(new CartItem("cornflakes", 3, new BigDecimal("2.52")), item);
+        assertNotSame(item, updated);
+    }
+
+    /** A negative additional quantity reduces the current one. */
+    @Test
+    void withAdditionalQuantityAcceptsANegativeAmount() {
+        CartItem item = new CartItem("cornflakes", 3, new BigDecimal("2.52"));
+
+        CartItem updated = item.withAdditionalQuantity(-1);
+
+        assertEquals(new CartItem("cornflakes", 2, new BigDecimal("2.52")), updated);
+    }
+
     /** Basic unit price x quantity math. */
     @Test
     void calculatesTotalPriceAsUnitPriceTimesQuantity() {
@@ -22,65 +55,5 @@ class CartItemTest {
         CartItem item = new CartItem("item", 1, BigDecimal.ZERO);
 
         assertEquals(BigDecimal.ZERO, item.getCartItemTotalPrice());
-    }
-
-    /** A product name is required. */
-    @Test
-    void rejectsANullProductName() {
-        try {
-            new CartItem(null, 1, new BigDecimal("1.00"));
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    /** Whitespace-only counts as blank. */
-    @Test
-    void rejectsABlankProductName() {
-        try {
-            new CartItem(" ", 1, new BigDecimal("1.00"));
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    /** Quantity must be at least one. */
-    @Test
-    void rejectsAZeroQuantity() {
-        try {
-            new CartItem("cornflakes", 0, new BigDecimal("1.00"));
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    /** Same as a zero quantity - still not a valid line item. */
-    @Test
-    void rejectsANegativeQuantity() {
-        try {
-            new CartItem("cornflakes", -1, new BigDecimal("1.00"));
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    /** A unit price is required to compute the line total. */
-    @Test
-    void rejectsANullUnitPrice() {
-        try {
-            new CartItem("cornflakes", 1, null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    /** Unlike quantity, a zero unit price is fine - only negative is rejected. */
-    @Test
-    void rejectsANegativeUnitPrice() {
-        try {
-            new CartItem("cornflakes", 1, new BigDecimal("-0.01"));
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
     }
 }

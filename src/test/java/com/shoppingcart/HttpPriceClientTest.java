@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -32,6 +33,31 @@ class HttpPriceClientTest {
         stubResponse(404, "");
 
         assertThrows(IllegalArgumentException.class, () -> client.getPriceByProductName("not-a-product"));
+    }
+
+    /** If the response shape changes and drops the "price" field, mapping fails loudly instead of returning null. */
+    @Test
+    void rejectsAResponseMissingThePriceField() throws Exception {
+        stubResponse(200, "{\"title\":\"Corn Flakes\"}");
+
+        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+    }
+
+    /** A response body that isn't valid JSON also counts as a mapping failure. */
+    @Test
+    void rejectsANonJsonResponseBody() throws Exception {
+        stubResponse(200, "not json");
+
+        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+    }
+
+    /** If the connection can't be established at all, that also results in an IllegalStateException. */
+    @Test
+    void throwsAnIllegalStateExceptionWhenTheConnectionFails() throws Exception {
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenThrow(new ConnectException("Connection refused"));
+
+        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
     }
 
     /** Stubs the mocked {@link HttpClient} to return the given status/body pair for any request. */
