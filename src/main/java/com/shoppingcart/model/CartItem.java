@@ -1,5 +1,6 @@
-package com.shoppingcart;
+package com.shoppingcart.model;
 
+import com.shoppingcart.service.ShoppingCart;
 import java.math.BigDecimal;
 import java.util.Objects;
 

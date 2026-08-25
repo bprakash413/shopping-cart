@@ -1,7 +1,9 @@
-package com.shoppingcart;
+package com.shoppingcart.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shoppingcart.exception.PriceLookupException;
+import com.shoppingcart.exception.ProductNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -36,8 +38,8 @@ public final class HttpPriceClient implements PriceClient {
     /**
      * Fetches the product's JSON file over HTTP and reads its price field.
      *
-     * @throws IllegalArgumentException if the product isn't found (non-200 response)
-     * @throws IllegalStateException    if the response can't be read, or has no price field
+     * @throws ProductNotFoundException if the product isn't found (non-200 response)
+     * @throws PriceLookupException     if the response can't be read, or has no price field
      */
     @Override
     public BigDecimal getPriceByProductName(String productName) {
@@ -45,18 +47,18 @@ public final class HttpPriceClient implements PriceClient {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                throw new IllegalArgumentException("Product not found: " + productName);
+                throw new ProductNotFoundException(productName);
             }
             JsonNode priceNode = OBJECT_MAPPER.readTree(response.body()).get("price");
             if (priceNode == null) {
-                throw new IllegalStateException("Price missing from product response");
+                throw new PriceLookupException("Price missing from product response");
             }
             return priceNode.decimalValue();
         } catch (IOException ioException) {
-            throw new IllegalStateException("Could not retrieve product price", ioException);
+            throw new PriceLookupException("Could not retrieve product price", ioException);
         } catch (InterruptedException interruptedException) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Price request interruptedException", interruptedException);
+            throw new PriceLookupException("Price request interrupted", interruptedException);
         }
     }
 

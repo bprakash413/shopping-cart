@@ -1,4 +1,4 @@
-package com.shoppingcart;
+package com.shoppingcart.model;
 
 import org.junit.jupiter.api.Test;
 

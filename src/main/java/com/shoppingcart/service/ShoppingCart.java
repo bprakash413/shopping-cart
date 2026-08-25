@@ -1,5 +1,6 @@
-package com.shoppingcart;
+package com.shoppingcart.service;
 
+import com.shoppingcart.model.CartItem;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;

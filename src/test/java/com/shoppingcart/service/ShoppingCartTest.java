@@ -1,4 +1,4 @@
-package com.shoppingcart;
+package com.shoppingcart.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

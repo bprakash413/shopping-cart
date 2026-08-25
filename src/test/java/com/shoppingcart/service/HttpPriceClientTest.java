@@ -1,4 +1,4 @@
-package com.shoppingcart;
+package com.shoppingcart.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.shoppingcart.exception.PriceLookupException;
+import com.shoppingcart.exception.ProductNotFoundException;
 import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.URI;
@@ -32,7 +34,7 @@ class HttpPriceClientTest {
     void rejectsAnUnknownProduct() throws Exception {
         stubResponse(404, "");
 
-        assertThrows(IllegalArgumentException.class, () -> client.getPriceByProductName("not-a-product"));
+        assertThrows(ProductNotFoundException.class, () -> client.getPriceByProductName("not-a-product"));
     }
 
     /** If the response shape changes and drops the "price" field, mapping fails loudly instead of returning null. */
@@ -40,7 +42,7 @@ class HttpPriceClientTest {
     void rejectsAResponseMissingThePriceField() throws Exception {
         stubResponse(200, "{\"title\":\"Corn Flakes\"}");
 
-        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+        assertThrows(PriceLookupException.class, () -> client.getPriceByProductName("cornflakes"));
     }
 
     /** A response body that isn't valid JSON also counts as a mapping failure. */
@@ -48,25 +50,25 @@ class HttpPriceClientTest {
     void rejectsANonJsonResponseBody() throws Exception {
         stubResponse(200, "not json");
 
-        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+        assertThrows(PriceLookupException.class, () -> client.getPriceByProductName("cornflakes"));
     }
 
-    /** If the connection can't be established at all, that also results in an IllegalStateException. */
+    /** If the connection can't be established at all, that also results in a PriceLookupException. */
     @Test
-    void throwsAnIllegalStateExceptionWhenTheConnectionFails() throws Exception {
+    void throwsAPriceLookupExceptionWhenTheConnectionFails() throws Exception {
         when(httpClient.send(any(HttpRequest.class), anyBodyHandler()))
                 .thenThrow(new ConnectException("Connection refused"));
 
-        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+        assertThrows(PriceLookupException.class, () -> client.getPriceByProductName("cornflakes"));
     }
 
-    /** A blocking send() that's interrupted mid-request also surfaces as an IllegalStateException. */
+    /** A blocking send() that's interrupted mid-request also surfaces as a PriceLookupException. */
     @Test
-    void throwsAnIllegalStateExceptionWhenInterrupted() throws Exception {
+    void throwsAPriceLookupExceptionWhenInterrupted() throws Exception {
         when(httpClient.send(any(HttpRequest.class), anyBodyHandler()))
                 .thenThrow(new InterruptedException("simulated interruption"));
 
-        assertThrows(IllegalStateException.class, () -> client.getPriceByProductName("cornflakes"));
+        assertThrows(PriceLookupException.class, () -> client.getPriceByProductName("cornflakes"));
     }
 
     /** Stubs the mocked {@link HttpClient} to return the given status/body pair for any request. */
