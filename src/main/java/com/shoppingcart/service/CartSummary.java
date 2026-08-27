@@ -6,32 +6,37 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-public class CartSummary {
+public final class CartSummary {
 
     private static final BigDecimal TAX_RATE = new BigDecimal("0.125");
 
-    private BigDecimal subtotal = BigDecimal.ZERO;
-    private BigDecimal tax = BigDecimal.ZERO;
+    private final BigDecimal subtotal;
+    private final BigDecimal tax;
+    private final BigDecimal total;
 
-    public BigDecimal subtotal(List<CartItem> cartItemList) {
+    public CartSummary(List<CartItem> cartItems) {
         BigDecimal sum = BigDecimal.ZERO;
-        for (CartItem cartItem : cartItemList) {
+        for (CartItem cartItem : cartItems) {
             sum = sum.add(cartItem.getCartItemTotalPrice());
         }
-        subtotal = roundUp(sum);
+        this.subtotal = roundUp(sum);
+        this.tax = roundUp(subtotal.multiply(TAX_RATE));
+        this.total = roundUp(subtotal.add(tax));
+    }
+
+    public BigDecimal getSubtotal() {
         return subtotal;
     }
 
-    public BigDecimal tax() {
-        tax = roundUp(subtotal.multiply(TAX_RATE));
+    public BigDecimal getTax() {
         return tax;
     }
 
-    public BigDecimal total() {
-        return roundUp(subtotal.add(tax));
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    private BigDecimal roundUp(BigDecimal amount) {
+    private static BigDecimal roundUp(BigDecimal amount) {
         return amount.setScale(2, RoundingMode.UP);
     }
 }

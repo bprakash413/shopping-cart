@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 class ShoppingCartTest {
     private PriceClient priceClient;
-    private CartSummary cartSummary;
 
     @BeforeEach
     void setUp() {
@@ -21,7 +20,6 @@ class ShoppingCartTest {
         when(priceClient.getPriceByProductName("cornflakes")).thenReturn(new BigDecimal("2.52"));
         when(priceClient.getPriceByProductName("weetabix")).thenReturn(new BigDecimal("9.98"));
         when(priceClient.getPriceByProductName("item")).thenReturn(new BigDecimal("0.01"));
-        cartSummary = new CartSummary();
     }
 
     @Test
@@ -32,18 +30,22 @@ class ShoppingCartTest {
         cart.addProduct("cornflakes", 1);
         cart.addProduct("weetabix", 1);
 
-        assertEquals(new BigDecimal("15.02"), cartSummary.subtotal(cart.getCartItems()));
-        assertEquals(new BigDecimal("1.88"), cartSummary.tax());
-        assertEquals(new BigDecimal("16.90"), cartSummary.total());
+        CartSummary cartSummary = new CartSummary(cart.getCartItems());
+
+        assertEquals(new BigDecimal("15.02"), cartSummary.getSubtotal());
+        assertEquals(new BigDecimal("1.88"), cartSummary.getTax());
+        assertEquals(new BigDecimal("16.90"), cartSummary.getTotal());
     }
 
     @Test
     void hasZeroTotalsWhenEmpty() {
         ShoppingCart cart = new ShoppingCart(priceClient);
 
-        assertEquals(new BigDecimal("0.00"), cartSummary.subtotal(cart.getCartItems()));
-        assertEquals(new BigDecimal("0.00"), cartSummary.tax());
-        assertEquals(new BigDecimal("0.00"), cartSummary.total());
+        CartSummary cartSummary = new CartSummary(cart.getCartItems());
+
+        assertEquals(new BigDecimal("0.00"), cartSummary.getSubtotal());
+        assertEquals(new BigDecimal("0.00"), cartSummary.getTax());
+        assertEquals(new BigDecimal("0.00"), cartSummary.getTotal());
     }
 
     @Test
@@ -51,9 +53,11 @@ class ShoppingCartTest {
         ShoppingCart cart = new ShoppingCart(priceClient);
         cart.addProduct("item", 1);
 
-        assertEquals(new BigDecimal("0.01"), cartSummary.subtotal(cart.getCartItems()));
-        assertEquals(new BigDecimal("0.01"), cartSummary.tax());
-        assertEquals(new BigDecimal("0.02"), cartSummary.total());
+        CartSummary cartSummary = new CartSummary(cart.getCartItems());
+
+        assertEquals(new BigDecimal("0.01"), cartSummary.getSubtotal());
+        assertEquals(new BigDecimal("0.01"), cartSummary.getTax());
+        assertEquals(new BigDecimal("0.02"), cartSummary.getTotal());
     }
 
     @Test
