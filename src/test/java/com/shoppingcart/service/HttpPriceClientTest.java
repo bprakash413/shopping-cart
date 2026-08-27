@@ -42,6 +42,22 @@ class HttpPriceClientTest {
     }
 
     @Test
+    void rejectsANonNumericPriceField() throws Exception {
+        stubResponse(200, "{\"price\":\"free\"}");
+
+        assertThrows(PriceLookupException.class, () -> client.getPriceByProductName("cornflakes"));
+    }
+
+    @Test
+    void rejectsAServerErrorWithAGenericPriceLookupException() throws Exception {
+        stubResponse(500, "");
+
+        PriceLookupException exception = assertThrows(PriceLookupException.class,
+                () -> client.getPriceByProductName("cornflakes"));
+        assertEquals(PriceLookupException.class, exception.getClass());
+    }
+
+    @Test
     void rejectsANonJsonResponseBody() throws Exception {
         stubResponse(200, "not json");
 

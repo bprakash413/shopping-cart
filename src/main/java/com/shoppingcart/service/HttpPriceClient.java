@@ -34,11 +34,14 @@ public final class HttpPriceClient implements PriceClient {
         HttpRequest request = HttpRequest.newBuilder(productUri(productName)).GET().build();
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
+            if (response.statusCode() == 404) {
                 throw new ProductNotFoundException(productName);
             }
+            if (response.statusCode() != 200) {
+                throw new PriceLookupException("Unexpected response status: " + response.statusCode());
+            }
             JsonNode priceNode = OBJECT_MAPPER.readTree(response.body()).get("price");
-            if (priceNode == null) {
+            if (priceNode == null || !priceNode.isNumber()) {
                 throw new PriceLookupException("Price missing from product response");
             }
             return priceNode.decimalValue();

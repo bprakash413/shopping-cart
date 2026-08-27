@@ -36,11 +36,11 @@ public final class ShoppingCart {
         return List.copyOf(cartItems.values());
     }
 
-    private void validate(String productName, Integer quantity) {
+    private void validate(String productName, int quantity) {
         if (productName == null || productName.isBlank()) {
             throw new IllegalArgumentException("productName must not be blank");
         }
-        if (quantity != null && quantity <= 0) {
+        if (quantity <= 0) {
             throw new IllegalArgumentException("quantity must be positive");
         }
     }
